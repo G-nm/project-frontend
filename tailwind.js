@@ -5,6 +5,11 @@ module.exports = {
   presets: [],
   darkMode: false, // or 'media' or 'class'
   theme: {
+    
+      fontFamily:{
+        custom:['Montserrat','sans-serif'],
+      },
+   
     screens: {
       sm: '640px',
       md: '768px',
@@ -163,6 +168,7 @@ module.exports = {
     },
     fontFamily: {
       sans: [
+        'Montserrat',
         'ui-sans-serif',
         'system-ui',
         '-apple-system',
