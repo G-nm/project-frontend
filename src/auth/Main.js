@@ -2,14 +2,16 @@
 import React from "react";
 import Signup from "./Signup";
 import Login from "./Login";
+import { ShowContext } from "./Showcontext";
 
-const Main = () => {
+const Main = (props) => {
   const [show, setShow] = React.useState(true);
 
   return (
-    <div className="grid place-items-center  h-screen font-sans">
-      <div className="shadow-2xl md:w-3/12 h-auto ">
-        <div className="mb-20">
+    <div className="flex justify-center  h-screen font-sans  ">
+      <div className="shadow-2xl md:w-3/12  h-screen">
+        <div className="" ></div>
+        <div className="">
           <button
             className={
               !show
@@ -36,8 +38,10 @@ const Main = () => {
           </button>
         </div>
         <div className="w-full px-12 pb-10">
-          {show && <Signup />}
-          {!show && <Login />}
+          <ShowContext.Provider value={setShow}>
+            {show && <Signup />}
+            {!show && <Login routerprops={props} />}
+          </ShowContext.Provider>
         </div>
       </div>
     </div>
