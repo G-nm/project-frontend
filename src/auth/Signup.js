@@ -5,7 +5,7 @@ import axios from "axios";
 const Signup = () => {
   const [eye, SetEye] = React.useState(false);
 
-  const setShow = useContext(ShowContext);
+  const { setShow, setErrorAlert } = useContext(ShowContext);
   const [role, setRole] = React.useState(true);
 
   const [organisation, setOrganisation] = useState({
@@ -63,46 +63,57 @@ const Signup = () => {
   const onsubmitHandler = async (e) => {
     e.preventDefault();
     if (role) {
-      console.log(organisation);
+      try {
+        let result = await axios.post("http://localhost:3636/signuporg", {
+          ...organisation,
+        });
 
-      let result = await axios.post("http://localhost:3636/signuporg", {
-        ...organisation,
-      });
-
-      console.log(result.status);
-
-      setOrganisation({
-        role: "organisation",
-        name: "",
-        email: "",
-        pass: "",
-        mobilenumber: "",
-      });
-      setShow(false);
+        if (result.status === 200) {
+          setOrganisation({
+            role: "organisation",
+            name: "",
+            email: "",
+            pass: "",
+            mobilenumber: "",
+          });
+          setShow(false);
+        }
+      } catch (error) {
+        console.log(error.response.data.error);
+        // return error;
+        setErrorAlert(error.response.data.error);
+      }
     } else {
-      console.log(merchant);
-      let result = await axios.post("http://localhost:3636/signupmerchant", {
-        ...merchant,
-      });
+      try {
+        let result = await axios.post("http://localhost:3636/signupmerchant", {
+          ...merchant,
+        });
 
-      console.log(result.status);
-      setMerchant({
-        role: "merchant",
-        firstname: "",
-        lastname: "",
-        storename: "",
-        email: "",
-        pass: "",
-        mobilenumber: "",
-        id: "",
-      });
-      setShow(false);
+        if (result.status === 200) {
+          setMerchant({
+            role: "merchant",
+            firstname: "",
+            lastname: "",
+            storename: "",
+            email: "",
+            pass: "",
+            mobilenumber: "",
+            id: "",
+          });
+          setShow(false);
+        }
+      } catch (error) {
+        console.log(error.response.status);
+        // setErrorAlert(error.response.data.error);
+        // return error;
+      }
     }
   };
 
   return (
     <>
       <section>
+        <div className="text-red-600"></div>
         <form onSubmit={onsubmitHandler}>
           <div>
             <label htmlFor="role">Role</label>

@@ -1,13 +1,5 @@
-import {
-  BrowserRouter as Router,
-  Route,
-  Redirect,
-  useHistory,
-  Link,
-  Switch,
-  useLocation,
-} from "react-router-dom";
-import { useContext, createContext, useState } from "react";
+import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
+// import { useContext, createContext, useState } from "react";
 import Main from "./auth/Main";
 import Dashboard from "./dashboard/dashboard";
 import { ProtectedRoute } from "./auth/protected.route";

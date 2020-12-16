@@ -2,15 +2,29 @@ import React from "react";
 import { FiEye, FiEyeOff } from "react-icons/fi";
 
 import auth from "./authservice";
+import { ShowContext } from "./Showcontext";
 
 const Login = ({ routerprops, ...rest }) => {
   const [eye, SetEye] = React.useState(false);
+  const [userData, setUserData] = React.useState({ email: "", pass: "" });
+  const { setErrorAlert } = React.useContext(ShowContext);
 
-  const onSubmitHandler = (e) => {
+  const onchangeHandler = (e) => {
+    let name = e.target.name;
+    let value = e.target.value;
+    setUserData({ ...userData, [name]: value });
+  };
+
+  const onSubmitHandler = async (e) => {
     e.preventDefault();
 
-    auth.login(() => {
-      routerprops.history.push("/dash");
+    await auth.login(userData, (error) => {
+      if (error) {
+        setErrorAlert(error);
+        console.log(error);
+      } else {
+        routerprops.history.push("/dash/home");
+      }
     });
   };
 
@@ -24,7 +38,11 @@ const Login = ({ routerprops, ...rest }) => {
             <input
               type="email"
               id="email"
+              name="email"
+              value={userData.email}
               className="w-full h-9 pl-2 rounded outline-none border"
+              onChange={onchangeHandler}
+              required
             />
           </div>
           <div>
@@ -34,7 +52,10 @@ const Login = ({ routerprops, ...rest }) => {
                 type={eye ? "text" : "password"}
                 id="pass"
                 name="pass"
-                className="w-full h-9 pl-2 rounded outline-none "
+                value={userData.pass}
+                className="w-full h-9 pl-2 rounded outline-none"
+                onChange={onchangeHandler}
+                required
               />
               <span className="mt-2 text-xl">
                 {eye ? (
