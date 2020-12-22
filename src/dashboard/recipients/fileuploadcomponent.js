@@ -47,15 +47,20 @@ export const Fileuploadcomponent = () => {
               let arrayofmobilenumbers = [];
               let mobilenumberdictionary;
               let iddictionary;
+              let tobeverifiedtbyserver = [];
+              
 
+              //to be done for each record in the sheet
               sheetdata.forEach((entry) => {
-                const titles = Object.keys(entry).map((entry) =>
-                  entry.toLowerCase()
-                );
+                const hascorrectkeys = Object.keys(entry)
+                  .map((entrytitle) => entrytitle.toLowerCase())
+                  .includes(
+                    "firstname" && "lastname" && "idnumber" && "mobilenumber"
+                  );
                 // checks for required titles for each object
-                let hascorrectkeys = titles.includes(
-                  "firstname" && "lastname" && "idnumber" && "mobilenumber"
-                );
+                // let hascorrectkeys = titles.includes(
+                //   "firstname" && "lastname" && "idnumber" && "mobilenumber"
+                // );
                 if (hascorrectkeys) {
                   // if all titles are present create object of these values and add to array of values to send
 
@@ -65,30 +70,32 @@ export const Fileuploadcomponent = () => {
                     entry.mobilenumber,
                   ];
                   array0fid = [...array0fid, entry.idnumber];
-
-                  // create a dictionary of ids and mobile numbers
-
-                  const dictionarymobile = (accumulator, mobilenumber) => ({
-                    ...accumulator,
-                    [mobilenumber]: (accumulator[mobilenumber] || 0) + 1,
-                  });
-                  const dictionaryid = (accumulator, idnumber) => ({
-                    ...accumulator,
-                    [idnumber]: (accumulator[idnumber] || 0) + 1,
-                  });
-                  // An object with all mobilenumbers and the number of instances of each mobile number
-                  mobilenumberdictionary = arrayofmobilenumbers.reduce(
-                    dictionarymobile,
-                    {}
-                  );
-                  iddictionary = array0fid.reduce(dictionaryid, {});
                 } else {
                   // if missing a title throw an error
+
                   throw new Error(
                     "Please Check if you have a firstname,lastname,idnumber and mobilenumber columns in your excel file"
                   );
                 }
               });
+              // create a dictionary of ids and mobile numbers
+
+
+              const dictionarymobile = (accumulator, mobilenumber) => ({
+                ...accumulator,
+                [mobilenumber]: (accumulator[mobilenumber] || 0) + 1,
+              });
+              const dictionaryid = (accumulator, idnumber) => ({
+                ...accumulator,
+                [idnumber]: (accumulator[idnumber] || 0) + 1,
+              });
+              // An object with all mobilenumbers and the number of instances of each mobile number
+              mobilenumberdictionary = arrayofmobilenumbers.reduce(
+                dictionarymobile,
+                {}
+              );
+              iddictionary = array0fid.reduce(dictionaryid, {});
+
               const duplicatemobilenumbers = () => {
                 return Object.keys(mobilenumberdictionary).filter(
                   (value) => mobilenumberdictionary[value] > 1
@@ -103,6 +110,8 @@ export const Fileuploadcomponent = () => {
               const idduplicates = duplicateids();
               const mobilenumberduplicates = duplicatemobilenumbers();
 
+              // checks if there are any duplicates by checking array length
+
               if (idduplicates.length || mobilenumberduplicates.length) {
                 let myerror = idduplicates
                   ? `Duplicate Id: ${idduplicates} `
@@ -113,6 +122,44 @@ export const Fileuploadcomponent = () => {
                   : "";
 
                 throw new Error(myerror + mobileerror);
+              }
+              //check if a mobilenumber has a length of ten
+              let numberslessthanten = sheetdata.reduce(
+                (accumulator, current) => {
+                  if (current.mobilenumber.toString().length < 10) {
+                    return [
+                      ...accumulator,
+                      {
+                        mobilenumber: current.mobilenumber,
+                        rownum: current.__rowNum__,
+                      },
+                    ];
+                  }
+                },
+                []
+              );
+              // console.log(numberslessthanten.length);
+              if (numberslessthanten.length) {
+                let myerror = numberslessthanten.reduce(
+                  (accumulator, lessthanten) => {
+                    let numberslessthantenerror =
+                      "The mobile number " +
+                      lessthanten.mobilenumber +
+                      " at row " +
+                      lessthanten.rownum +
+                      " is not a valid mobile number\n";
+                    return [...accumulator, numberslessthantenerror];
+                  },
+                  []
+                );
+                // console.log(myerror)
+                let newmyerror = myerror.reduce((accumulator, currentvalue) => {
+                  return accumulator.concat(currentvalue);
+                }, "");
+
+                throw new Error(newmyerror);
+
+                // console.log([...numberslessthanten]);
               }
               console.log("file is ok to send to server", sheetdata);
             } else {

@@ -7157,6 +7157,11 @@
     "prelude-ls" "~1.1.2"
     "type-check" "~0.3.2"
 
+"libphonenumber-js@^1.9.6":
+  "integrity" "sha512-Ob419L88HxP3iVXPMI1Z/146izHrUPcV70ClnoP9WyNBgdy6mtlkCxx4ewMDmCzsdY5D4diDOUz8kboqLdKBoQ=="
+  "resolved" "https://registry.npmjs.org/libphonenumber-js/-/libphonenumber-js-1.9.6.tgz"
+  "version" "1.9.6"
+
 "lines-and-columns@^1.1.6":
   "integrity" "sha1-HADHQ7QzzQpOgHWPe2SldEDZ/wA="
   "resolved" "https://registry.yarnpkg.com/lines-and-columns/-/lines-and-columns-1.1.6.tgz"

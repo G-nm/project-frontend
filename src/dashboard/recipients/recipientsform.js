@@ -1,13 +1,14 @@
 import React from "react";
 import { useForm } from "react-hook-form";
 import axios from "axios";
+import parsePhoneNumber from "libphonenumber-js";
 
 export const Recipientsform = () => {
-  const { register, handleSubmit, errors, setError, clearErrors } = useForm();
+  const { register, handleSubmit, errors, reset } = useForm();
 
   const validatemobilenumber = async (value) => {
     try {
-      let ismobilenumberused = await axios.post(
+      const ismobilenumberused = await axios.post(
         "http://localhost:3636/checkmobilenumber",
         {
           mobilenumber: value,
@@ -20,22 +21,12 @@ export const Recipientsform = () => {
         }
       );
       if (ismobilenumberused.data.ismobilenumberpresent === 0) {
-        clearErrors("mobilenumberused");
-
         return true;
       } else {
-        setError("mobilenumberused", {
-          type: "validate",
-          message: "This Mobile number is in use",
-        });
-        // return false;
+        return false;
       }
     } catch (error) {
-      setError("mobilenumberused", {
-        type: "validate",
-        message: "This Mobile number is in use",
-      });
-      // return false;
+      return false;
     }
   };
   const validateidnumber = async (value) => {
@@ -53,28 +44,31 @@ export const Recipientsform = () => {
         }
       );
       if (isidnumberused.data.isidpresent === 0) {
-        clearErrors("idnumberused");
+        // clearErrors("idnumberused");
 
         return true;
       } else {
-        setError("idnumberused", {
-          type: "validate",
-          message: "This Id number is in use",
-        });
-        // return false;
+        // setError("idnumberused", {
+        //   type: "validate",
+        //   message: "This Id number is in use",
+        // });
+        return false;
       }
     } catch (error) {
-      setError("mobilenumberused", {
-        type: "validate",
-        message: "This Id number is in use",
-      });
-      // return false;
+      // setError("idnumberused", {
+      //   type: "validate",
+      //   message: "This Id number is in use",
+      // });
+      return false;
     }
   };
 
-  const submitform = (data, e) => {
-    console.log(data);
-    e.target.reset();
+  const submitform = (data) => {
+    const internationalnumber = parsePhoneNumber(data.mobilenumber, "KE")
+      .number;
+    console.log({ ...data, mobilenumber: internationalnumber });
+    // console.log(parsePhoneNumber(data.mobilenumber, "KE").isValid());
+    reset();
   };
 
   return (
@@ -127,18 +121,29 @@ export const Recipientsform = () => {
             </label>
             <br />
             <input
-              type="text"
+              type="number"
               placeholder="Id Number"
               name="idnumber"
               id="idnumber"
               className="outline-none pl-1 rounded-lg py-1 border-2 w-full"
-              ref={register({ required: true, validate: validateidnumber })}
+              ref={register({
+                required: true,
+                validate: {
+                  isIdValid: async (value) => await validateidnumber(value),
+                },
+                minLength: { value: 8, message: " Id number to short " },
+              })}
             />
             <br />
             <span className="text-red-600 ">
-              {errors.idnumber && <span>This is required</span>}
-              {errors.idnumberused && (
-                <span>{errors.idnumberused.message}</span>
+              {errors.idnumber?.type === "required" && (
+                <span>This is required</span>
+              )}
+              {errors.idnumber?.type === "minLength" && (
+                <span>{errors.idnumber?.message}</span>
+              )}
+              {errors.idnumber?.type === "isIdValid" && (
+                <span>Invalid Id Number</span>
               )}
             </span>
           </span>
@@ -148,20 +153,42 @@ export const Recipientsform = () => {
             </label>
             <br />
             <input
-              type="text"
+              type="number"
               placeholder="Mobile Number"
               name="mobilenumber"
               id="mobilenumber"
               className="outline-none pl-1 rounded-lg py-1 border-2 w-full"
-              ref={register({ required: true, validate: validatemobilenumber })}
+              ref={register({
+                required: { value: true, message: "Mobile number is required" },
+                validate: {
+                  isnumbervalid: (value) => {
+                    if (value === "0") {
+                      return false;
+                    }
+                    return parsePhoneNumber(value, "KE")?.isValid();
+                  },
+                  isnumberUsed: async (value) =>
+                    await validatemobilenumber(value),
+                },
+                minLength: {
+                  value: 10,
+                  message: "Enter a valid mobile number",
+                },
+              })}
             />
             <br />
             <span className="text-red-600 ">
-              {errors.mobilenumber && <span>This is required</span>}
-            </span>
-            <span className="text-red-600 ">
-              {errors.mobilenumberused && (
-                <span>{errors.mobilenumberused.message}</span>
+              {errors.mobilenumber?.type === "required" && (
+                <span>This is required</span>
+              )}
+              {errors.mobilenumber?.type === "minLength" && (
+                <span>{errors.mobilenumber?.message}</span>
+              )}
+              {errors.mobilenumber?.type === "isnumbervalid" && (
+                <span>Invalid Number</span>
+              )}
+              {errors.mobilenumber?.type === "isnumberUsed" && (
+                <span>Number has been used</span>
               )}
             </span>
           </span>
