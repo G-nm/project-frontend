@@ -7,12 +7,6 @@ export const ProtectedRoute = ({ component: Component, ...rest }) => {
   const [user, SetUSer] = useState(null);
   const [isTokenValidated, setIsTokenValidated] = useState(false);
 
-  // const avalue = async () => {
-  //   let myval = await auth.isAuthenticated();
-  //   console.log(`I am` + myval);
-  // };
-  // avalue();
-
   useEffect(() => {
     auth.isAuthenticated().then((login) => {
       if (login) {

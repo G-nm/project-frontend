@@ -1,4 +1,5 @@
 import axios from "axios";
+// require("dotenv").config();
 
 class Auth {
   constructor() {
@@ -7,7 +8,7 @@ class Auth {
   async login({ email, pass }, cb) {
     try {
       let result = await axios.post(
-        "http://localhost:3636/login",
+        `${process.env.REACT_APP_SERVER}/login`,
         {
           email,
           pass,
@@ -36,7 +37,7 @@ class Auth {
 
     try {
       const result = await axios.post(
-        "http://localhost:3636/logout",
+        `${process.env.REACT_APP_SERVER}/logout`,
         {},
         { withCredentials: true }
       );
@@ -56,7 +57,7 @@ class Auth {
   async isAuthenticated() {
     try {
       const result = await axios.post(
-        "http://localhost:3636/issessionactive",
+        `${process.env.REACT_APP_SERVER}/issessionactive`,
         {},
         {
           withCredentials: true,

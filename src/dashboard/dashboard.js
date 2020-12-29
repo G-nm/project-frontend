@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useRef, useState, useEffect } from "react";
 import {
   Switch,
   Redirect,
@@ -7,6 +7,9 @@ import {
   NavLink,
 } from "react-router-dom";
 import { BiLogOutCircle } from "react-icons/bi";
+import { AiOutlineCloseCircle } from "react-icons/ai";
+import { IoCheckmarkDoneSharp } from "react-icons/io5";
+import { RecipientModal } from "./recipients/RecipientModal";
 
 import auth from "../auth/authservice";
 import { ProtectedRoute } from "../auth/protected.route";
@@ -15,7 +18,9 @@ import { Recipient } from "./recipients";
 import { Merchant } from "./merchants";
 
 import { Deposit } from "./deposit";
-
+import { Appcontext } from "./AppContext";
+import Axios from "axios";
+require("dotenv").config();
 const myroutes = [
   {
     path: "/dash/home",
@@ -39,99 +44,208 @@ const myroutes = [
   },
 ];
 
+// Add use effect and add state as dependency
+// In use effect change notification bar opacity
+
 const Dashboard = (props) => {
+  const notificationbar = useRef();
+  const successnotification = useRef();
+  const [apperror, setAppError] = useState({
+    errormessage: "",
+    color: "bg-red-500 ",
+    textcolor: "text-white ",
+  });
+  const [userdetails, setUserDetails] = useState({
+    showuserdetails: false,
+    firstname: "",
+    lastname: "",
+    idnumber: "",
+    mobilenumber: "",
+    balance: "",
+    uuid: "",
+  });
+
+  const [recipients, setRecipients] = useState([]);
+  useEffect(() => {
+    try {
+      Axios.post(
+        `${process.env.REACT_APP_SERVER}/selectrecipientsfororg`,
+        {},
+        { withCredentials: true }
+      ).then((response) => {
+        console.log(response.data);
+        setRecipients(response.data);
+      });
+    } catch (error) {
+      setAppError({
+        ...apperror,
+        errormessage: error.message,
+      });
+    }
+  }, []);
+  const [appnotification, setAppNotification] = useState({
+    message: "",
+  });
+
   let { url } = useRouteMatch();
 
   const styles = {
     activelink: "block bg-yellow-300 rounded mx-4 ",
     link: "block mx-4 py-1",
   };
+  const addstyle = () => {
+    notificationbar.current.classList.add("-translate-y-full");
+    setTimeout(() => {
+      setAppError({ ...apperror, errormessage: "" });
+    }, 500);
+  };
 
+  if (apperror.errormessage !== "") {
+    notificationbar.current.classList.remove("-translate-y-full");
+  }
+
+  if (appnotification.message !== "") {
+    console.log(successnotification);
+    successnotification.current.classList.remove("-translate-x-full");
+    setTimeout(() => {
+      successnotification.current.classList.add("-translate-x-full");
+    }, 4000);
+  }
+
+  let mytext = { text: "wow" };
+  let othertext = { text: "more wow" };
   return (
-    <div className="h-screen bg-gray-50 over">
-      <div className=" rounded-2xl w-72  ml-4  bg-white fixed h-full">
-        <div className="relative top-2 mb-2 h-full  pt-8 rounded border">
-          <div className="text-5xl pb-5 font-semibold text-center">MTOG</div>
-          <div className="grid grid-rows-4 text-center">
-            <div>
-              <NavLink
-                to={`${url}/home`}
-                activeClassName={styles.activelink}
-                className={styles.link}
-              >
-                Dashboard
-              </NavLink>
-            </div>
-            <div>
-              <NavLink
-                to={`${url}/recipients`}
-                activeClassName={styles.activelink}
-                className={styles.link}
-              >
-                Recipients
-              </NavLink>
-            </div>
+    <Appcontext.Provider
+      value={{
+        mytext,
+        othertext,
+        setAppError,
+        apperror,
+        setAppNotification,
+        appnotification,
+        recipients,
+        userdetails,
+        setUserDetails,
+      }}
+    >
+      <RecipientModal />
 
-            <div>
-              <NavLink
-                to={`${url}/merchants`}
-                activeClassName={styles.activelink}
-                className={styles.link}
-              >
-                Merchants
-              </NavLink>
-            </div>
-            <div>
-              <NavLink
-                to={`${url}/deposit`}
-                activeClassName={styles.activelink}
-                className={styles.link}
-              >
-                Deposit
-              </NavLink>
-            </div>
-          </div>
-          <div className=" absolute bottom-6  w-full  flex justify-center">
+      <div
+        className={`h-screen bg-gray-50 ${
+          userdetails.showuserdetails ? `overflow-hidden` : `overflow-auto`
+        }`}
+      >
+        <div
+          className="absolute z-20 w-full flex justify-center transform-gpu transition-all duration-500 -translate-y-full"
+          ref={notificationbar}
+        >
+          <div
+            className={`${apperror.color} mx-96 p-7 rounded-xl  ${apperror.textcolor} relative`}
+          >
+            {apperror.errormessage}
+
             <button
-              className="py-1 rounded-lg border-2 w-full mx-4  hover:bg-red-500 hover:text-white z-0"
-              onClick={() => {
-                auth.logout(() => {
-                  props.history.push("/");
-                });
-              }}
+              onClick={addstyle}
+              className="absolute right-5 top-2 text-xl text-black outline-none"
             >
-              <BiLogOutCircle className="inline" />
-              Sign out
+              <AiOutlineCloseCircle />
             </button>
           </div>
         </div>
-      </div>
+        <div
+          className="z-20 absolute bottom-32 p-4 -translate-x-full bg-green-300 rounded-lg w-80 h-14 flex items-center transform-gpu transition-all duration-700"
+          ref={successnotification}
+        >
+          <span className="pr-5 flex-grow">{appnotification.message}</span>
+          <span className="">
+            <IoCheckmarkDoneSharp />
+          </span>
+        </div>
 
-      <div className=" ml-80  flex flex-col pr-10 h-full  relative bottom-4 ">
-        <div className=" shadow sticky top-3 z-10 rounded-2xl flex items-center justify-end bg-white">
-          <div className="pr-4 ">
-            <span className="font-bold">Balance: </span> <span>10000 </span>
-            MTOG
+        <div className=" rounded-2xl w-72  ml-4  bg-white fixed h-full">
+          <div className="relative top-2 mb-2 h-full  pt-8 rounded border">
+            <div className="text-5xl pb-5 font-semibold text-center">MTOG</div>
+            <div className="grid grid-rows-4 text-center">
+              <div>
+                <NavLink
+                  to={`${url}/home`}
+                  activeClassName={styles.activelink}
+                  className={styles.link}
+                >
+                  Dashboard
+                </NavLink>
+              </div>
+              <div>
+                <NavLink
+                  to={`${url}/recipients`}
+                  activeClassName={styles.activelink}
+                  className={styles.link}
+                >
+                  Recipients
+                </NavLink>
+              </div>
+
+              <div>
+                <NavLink
+                  to={`${url}/merchants`}
+                  activeClassName={styles.activelink}
+                  className={styles.link}
+                >
+                  Merchants
+                </NavLink>
+              </div>
+              <div>
+                <NavLink
+                  to={`${url}/deposit`}
+                  activeClassName={styles.activelink}
+                  className={styles.link}
+                >
+                  Deposit
+                </NavLink>
+              </div>
+            </div>
+            <div className=" absolute bottom-6  w-full  flex justify-center">
+              <button
+                className="py-1 rounded-lg border-2 w-full mx-4  hover:bg-red-500 hover:text-white z-0"
+                onClick={() => {
+                  auth.logout(() => {
+                    props.history.push("/");
+                  });
+                }}
+              >
+                <BiLogOutCircle className="inline" />
+                Sign out
+              </button>
+            </div>
           </div>
         </div>
-        <br />
-        <div className=" mt-4  top-4 pb-8 rounded-2xl border bg-white h-full w-full overflow-y-auto">
-          <Switch>
-            {myroutes.map((route, index) => (
-              <ProtectedRoute
-                key={index}
-                path={route.path}
-                exact={route.exact}
-                component={route.main}
-              />
-            ))}
-            <Route path="*">
-              <Redirect to="/dash/home" />
-            </Route>
-          </Switch>
+
+        <div className=" ml-80  flex flex-col pr-10 h-full  relative bottom-4 ">
+          <div className=" shadow sticky top-3 z-10 rounded-2xl flex p-3 justify-end bg-white">
+            <div className="pr-4 self-center ">
+              <span className="font-bold">Balance: </span> <span>10000 </span>
+              MTOG
+            </div>
+          </div>
+          <br />
+          <div className=" mt-4  top-4 pb-8 rounded-2xl border bg-white w-full">
+            <Switch>
+              {myroutes.map((route, index) => (
+                <ProtectedRoute
+                  key={index}
+                  path={route.path}
+                  exact={route.exact}
+                  component={route.main}
+                />
+              ))}
+              <Route path="*">
+                <Redirect to="/dash/home" />
+              </Route>
+            </Switch>
+          </div>
         </div>
       </div>
-    </div>
+    </Appcontext.Provider>
   );
 };
 

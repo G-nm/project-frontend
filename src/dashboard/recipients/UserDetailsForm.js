@@ -5,10 +5,21 @@ import parsePhoneNumber from "libphonenumber-js";
 import { Appcontext } from "../AppContext";
 import { validateidnumber, validatemobilenumber } from "./commonlogic";
 
-export const Recipientsform = () => {
+export const USerDetailsForm = () => {
   const { register, handleSubmit, errors, reset } = useForm();
 
-  const { setAppNotification, appnotification } = useContext(Appcontext);
+  const { setAppNotification, appnotification, userdetails } = useContext(
+    Appcontext
+  );
+
+  const {
+    firstname,
+    lastname,
+    idnumber,
+    mobilenumber,
+    balance,
+    uuid,
+  } = userdetails;
 
   const submitform = async (data) => {
     const internationalnumber = parsePhoneNumber(data.mobilenumber, "KE")
@@ -16,7 +27,7 @@ export const Recipientsform = () => {
     console.log([{ ...data, mobilenumber: internationalnumber }]);
     try {
       let response = await axios.post(
-        `${process.env.REACT_APP_SERVER}/addrecipients`,
+        `${process.env.REACT_APP_SERVER}/updaterecipients`,
         [data],
         {
           withCredentials: true,
@@ -38,14 +49,14 @@ export const Recipientsform = () => {
 
   return (
     <>
-      <div className="text-center underline">Add Recipient</div>
+      <div className="text-center underline">Recipient Details</div>
       <form
         className="flex flex-wrap flex-col"
         onSubmit={handleSubmit(submitform)}
       >
         <div className="flex justify-center flex-wrap">
-          <span className="mr-1 text-center flex-grow">
-            <label htmlFor="firstname" className="">
+          <span className="mr-1 w-3/4">
+            <label htmlFor="firstnamemodal" className="">
               FirstName:
             </label>
             <br />
@@ -53,7 +64,8 @@ export const Recipientsform = () => {
               type="text"
               placeholder="First Name"
               name="firstname"
-              id="firstname"
+              id="firstnamemodal"
+              defaultValue={firstname}
               className="outline-none pl-1 rounded-lg py-1 border-2 w-full"
               ref={register({ required: true })}
             />
@@ -62,8 +74,8 @@ export const Recipientsform = () => {
               {errors.firstname && <span>This is required</span>}
             </span>
           </span>
-          <span className="mr-1 text-center flex-grow">
-            <label htmlFor="lastname" className="">
+          <span className="mr-1 w-3/4">
+            <label htmlFor="lastnamemodal" className="">
               LastName:
             </label>
             <br />
@@ -71,7 +83,8 @@ export const Recipientsform = () => {
               type="text"
               placeholder="Last Name"
               name="lastname"
-              id="lastname"
+              id="lastnamemodal"
+              defaultValue={lastname}
               className="outline-none pl-1 rounded-lg py-1 border-2 w-full"
               ref={register({ required: true })}
             />
@@ -80,8 +93,8 @@ export const Recipientsform = () => {
               {errors.lastname && <span>This is required</span>}
             </span>
           </span>
-          <span className="mr-1 text-center flex-grow">
-            <label htmlFor="idnumber" className="">
+          <span className="mr-1 w-3/4">
+            <label htmlFor="idnumbermodal" className="">
               Id Number
             </label>
             <br />
@@ -89,7 +102,8 @@ export const Recipientsform = () => {
               type="number"
               placeholder="Id Number"
               name="idnumber"
-              id="idnumber"
+              id="idnumbermodal"
+              defaultValue={idnumber}
               className="outline-none pl-1 rounded-lg py-1 border-2 w-full"
               ref={register({
                 required: true,
@@ -109,15 +123,15 @@ export const Recipientsform = () => {
                 <span>{errors.idnumber?.message}</span>
               )}
               {errors.idnumber?.type === "isIdValid" && (
-                <span>Invalid Id Number</span>
+                <span> Id Number has been used</span>
               )}
               {errors.idnumber?.type === "maxLength" && (
                 <span>{errors.idnumber?.message}</span>
               )}
             </span>
           </span>
-          <span className="mr-1 text-center flex-grow">
-            <label htmlFor="mobilenumber" className="">
+          <span className="mr-1 w-3/4">
+            <label htmlFor="mobilenumbermodal" className="">
               Mobile Number
             </label>
             <br />
@@ -125,7 +139,8 @@ export const Recipientsform = () => {
               type="number"
               placeholder="Mobile Number"
               name="mobilenumber"
-              id="mobilenumber"
+              id="mobilenumbermodal"
+              defaultValue={mobilenumber}
               className="outline-none pl-1 rounded-lg py-1 border-2 w-full"
               ref={register({
                 required: { value: true, message: "Mobile number is required" },
@@ -165,12 +180,17 @@ export const Recipientsform = () => {
         <div className=" text-center h-12 mt-2">
           <button
             type="submit"
-            className=" w-full border h-full rounded-lg text-lg bg-yellow-400 hover:bg-yellow-300 focus:outline-none"
+            className=" w-3/4 border h-full rounded-lg text-lg bg-yellow-400 hover:bg-yellow-300 focus:outline-none"
           >
-            Add Recipient
+            Update Recipient
           </button>
         </div>
       </form>
+      <div className="absolute bottom-5 right-5">
+        <button className="bg-red-400 hover:bg-red-600 hover:text-white h-9 w-44 rounded-lg">
+          Delete Recipient
+        </button>
+      </div>
     </>
   );
 };
