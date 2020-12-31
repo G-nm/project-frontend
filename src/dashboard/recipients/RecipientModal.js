@@ -2,12 +2,11 @@ import React, { useContext } from "react";
 import { AiOutlineCloseCircle } from "react-icons/ai";
 import { Appcontext } from "../AppContext";
 import { TransfersinModal } from "./TransfersinModal";
-import { USerDetailsForm } from "./UserDetailsForm";
+import { USerDetailsForm } from "./SlideinUserDetailsForm";
 
 export const RecipientModal = (props) => {
   const { userdetails, setUserDetails } = useContext(Appcontext);
   const { showuserdetails } = userdetails;
-  console.log(props);
 
   return (
     <div

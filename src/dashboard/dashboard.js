@@ -6,21 +6,27 @@ import {
   useRouteMatch,
   NavLink,
 } from "react-router-dom";
+import { Elements } from "@stripe/react-stripe-js";
+import { loadStripe } from "@stripe/stripe-js";
 import { BiLogOutCircle } from "react-icons/bi";
 import { AiOutlineCloseCircle } from "react-icons/ai";
 import { IoCheckmarkDoneSharp } from "react-icons/io5";
 import { RecipientModal } from "./recipients/RecipientModal";
-
 import auth from "../auth/authservice";
 import { ProtectedRoute } from "../auth/protected.route";
 import { Home } from "./home";
 import { Recipient } from "./recipients";
 import { Merchant } from "./merchants";
-
-import { Deposit } from "./deposit";
+import { PaymentModal } from "./deposit/PaymentModal";
+import Deposit from "./deposit";
 import { Appcontext } from "./AppContext";
 import Axios from "axios";
 require("dotenv").config();
+
+const stripPromise = loadStripe(
+  "pk_test_51I3gNIDsnRyoDmtJCrLBhlJX0PFNaFXNz8DHG90sOEl4Vv44lumjcQ9KDY6qdjVuwufFbUoc6J1dcpytArfRnM0k00IeDw03Rb"
+);
+
 const myroutes = [
   {
     path: "/dash/home",
@@ -64,7 +70,11 @@ const Dashboard = (props) => {
     balance: "",
     uuid: "",
   });
-
+  const [payment, setPayment] = useState({
+    showpayment: false,
+    paymentname: "",
+    price: "",
+  });
   const [recipients, setRecipients] = useState([]);
   useEffect(() => {
     try {
@@ -78,7 +88,8 @@ const Dashboard = (props) => {
       });
     } catch (error) {
       setAppError({
-        ...apperror,
+        color: "bg-red-500 ",
+        textcolor: "text-white ",
         errormessage: error.message,
       });
     }
@@ -103,14 +114,18 @@ const Dashboard = (props) => {
   if (apperror.errormessage !== "") {
     notificationbar.current.classList.remove("-translate-y-full");
   }
-
-  if (appnotification.message !== "") {
-    console.log(successnotification);
-    successnotification.current.classList.remove("-translate-x-full");
-    setTimeout(() => {
-      successnotification.current.classList.add("-translate-x-full");
-    }, 4000);
-  }
+  useEffect(() => {
+    if (appnotification.message !== "") {
+      console.log(successnotification);
+      successnotification.current.classList.remove("-translate-x-full");
+      setTimeout(() => {
+        successnotification.current.classList.add("-translate-x-full");
+      }, 4000);
+      setTimeout(() => {
+        setAppNotification({ message: "" });
+      }, 5000);
+    }
+  }, [appnotification.message]);
 
   let mytext = { text: "wow" };
   let othertext = { text: "more wow" };
@@ -126,9 +141,15 @@ const Dashboard = (props) => {
         recipients,
         userdetails,
         setUserDetails,
+        payment,
+        setPayment,
       }}
     >
       <RecipientModal />
+
+      <Elements stripe={stripPromise}>
+        <PaymentModal />
+      </Elements>
 
       <div
         className={`h-screen bg-gray-50 ${
@@ -220,15 +241,15 @@ const Dashboard = (props) => {
           </div>
         </div>
 
-        <div className=" ml-80  flex flex-col pr-10 h-full  relative bottom-4 ">
-          <div className=" shadow sticky top-3 z-10 rounded-2xl flex p-3 justify-end bg-white">
+        <div className=" ml-80  flex flex-col pr-5 relative h-full">
+          <div className=" shadow sticky top-3 z-10 mb-10 rounded-2xl flex p-3 justify-end bg-white">
             <div className="pr-4 self-center ">
               <span className="font-bold">Balance: </span> <span>10000 </span>
               MTOG
             </div>
           </div>
           <br />
-          <div className=" mt-4  top-4 pb-8 rounded-2xl border bg-white w-full">
+          <div className=" bottom-4 relative rounded-2xl border bg-white w-full ">
             <Switch>
               {myroutes.map((route, index) => (
                 <ProtectedRoute

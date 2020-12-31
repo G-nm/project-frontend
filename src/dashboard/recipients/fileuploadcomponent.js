@@ -20,6 +20,34 @@ export const Fileuploadcomponent = () => {
     appnotification,
   } = useContext(Appcontext);
 
+  const submittoserver = useCallback(
+    async (data) => {
+      try {
+        let result = await axios.post(
+          `${process.env.REACT_APP_SERVER}/addrecipients`,
+          data,
+          {
+            withCredentials: true,
+          }
+        );
+        if (result.status === 200) {
+          setAppNotification({
+            ...appnotification,
+            message: "Success",
+          });
+        }
+      } catch (error) {
+        setAppError({
+          ...apperror,
+          color: "bg-red-500",
+          errormessage: `${error.response.data.error}`,
+        });
+        console.log(error.response.data.error);
+      }
+    },
+    [apperror, appnotification, setAppError, setAppNotification]
+  );
+
   const {
     // acceptedFiles,
     getInputProps,
@@ -232,35 +260,10 @@ export const Fileuploadcomponent = () => {
           reader.readAsArrayBuffer(file);
         });
       },
-      [setAppError, apperror]
+      [setAppError, apperror, submittoserver]
     ),
     maxFiles: 1,
   });
-
-  const submittoserver = async (data) => {
-    try {
-      let result = await axios.post(
-        `${process.env.REACT_APP_SERVER}/addrecipients`,
-        data,
-        {
-          withCredentials: true,
-        }
-      );
-      if (result.status === 200) {
-        setAppNotification({
-          ...appnotification,
-          message: "Success",
-        });
-      }
-    } catch (error) {
-      setAppError({
-        ...apperror,
-        color: "bg-red-500",
-        errormessage: `${error.response.data.error}`,
-      });
-      console.log(error.response.data.error);
-    }
-  };
 
   const style = useMemo(() => {
     if (isDragAccept) {

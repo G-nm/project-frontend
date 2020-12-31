@@ -214,15 +214,17 @@ const Signup = () => {
           <div>
             <label htmlFor="password">Password</label>
             <div className="flex border rounded">
-              <input
-                type={eye ? "text" : "password"}
-                id="pass"
-                name="pass"
-                className="w-full h-9 pl-2 rounded outline-none  col-span-2 "
-                required
-                onChange={onchangehandler}
-                value={role ? organisation.pass : merchant.pass}
-              />
+              <span>
+                <input
+                  type={eye ? "text" : "password"}
+                  id="pass"
+                  name="pass"
+                  className="w-full h-9 pl-2 rounded outline-none  col-span-2 "
+                  required
+                  onChange={onchangehandler}
+                  value={role ? organisation.pass : merchant.pass}
+                />
+              </span>
 
               <span className="mt-2 text-xl">
                 {eye ? (
