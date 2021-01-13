@@ -20,9 +20,9 @@ import { Merchant } from "./merchants";
 import { PaymentModal } from "./deposit/PaymentModal";
 import Deposit from "./deposit";
 import { Appcontext } from "./AppContext";
-import Axios from "axios";
+import { Transfer } from "./transfer";
+import { requestorgdata, requestrecipientdata } from "./commonlogic";
 require("dotenv").config();
-
 const stripPromise = loadStripe(
   "pk_test_51I3gNIDsnRyoDmtJCrLBhlJX0PFNaFXNz8DHG90sOEl4Vv44lumjcQ9KDY6qdjVuwufFbUoc6J1dcpytArfRnM0k00IeDw03Rb"
 );
@@ -48,12 +48,17 @@ const myroutes = [
     exact: true,
     main: () => <Deposit />,
   },
+  {
+    path: "/dash/transfer",
+    exact: true,
+    main: () => <Transfer />,
+  },
 ];
 
 // Add use effect and add state as dependency
 // In use effect change notification bar opacity
 
-const Dashboard = (props) => {
+export const Dashboard = (props) => {
   const notificationbar = useRef();
   const successnotification = useRef();
   const [apperror, setAppError] = useState({
@@ -76,24 +81,30 @@ const Dashboard = (props) => {
     price: "",
   });
   const [recipients, setRecipients] = useState([]);
+  const [shouldrequestrecipients, setRequestRecipients] = useState(true);
+  const [orgdetails, setOrgDetails] = useState({});
+
   useEffect(() => {
-    try {
-      Axios.post(
-        `${process.env.REACT_APP_SERVER}/selectrecipientsfororg`,
-        {},
-        { withCredentials: true }
-      ).then((response) => {
-        console.log(response.data);
-        setRecipients(response.data);
-      });
-    } catch (error) {
+    let requestrecipients = async (success, failure) => {
+      await requestrecipientdata(success, failure);
+    };
+
+    const ifsuccess = (recipientdetails) => {
+      console.log(recipientdetails);
+      setRecipients(recipientdetails);
+    };
+
+    const iffailure = (error) => {
       setAppError({
         color: "bg-red-500 ",
         textcolor: "text-white ",
-        errormessage: error.message,
+        errormessage: error,
       });
-    }
-  }, []);
+    };
+
+    requestrecipients(ifsuccess, iffailure);
+  }, [shouldrequestrecipients]);
+
   const [appnotification, setAppNotification] = useState({
     message: "",
   });
@@ -111,12 +122,12 @@ const Dashboard = (props) => {
     }, 500);
   };
 
-  if (apperror.errormessage !== "") {
+  if (apperror.errormessage?.length) {
     notificationbar.current.classList.remove("-translate-y-full");
   }
+  // Show Success Notification
   useEffect(() => {
-    if (appnotification.message !== "") {
-      console.log(successnotification);
+    if (appnotification.message.length) {
       successnotification.current.classList.remove("-translate-x-full");
       setTimeout(() => {
         successnotification.current.classList.add("-translate-x-full");
@@ -127,13 +138,31 @@ const Dashboard = (props) => {
     }
   }, [appnotification.message]);
 
-  let mytext = { text: "wow" };
-  let othertext = { text: "more wow" };
+  useEffect(() => {
+    let data = async (successcb, failurecb) => {
+      await requestorgdata(successcb, failurecb);
+    };
+
+    const ifsuccess = (orgdetails) => {
+      console.log(orgdetails);
+      setOrgDetails(orgdetails);
+    };
+
+    const iffailure = (error) => {
+      setAppError({
+        color: "bg-red-500 ",
+        textcolor: "text-white ",
+        errormessage: error,
+      });
+    };
+    data(ifsuccess, iffailure);
+  }, []);
+
+  let mytext = "wowowowo";
   return (
     <Appcontext.Provider
       value={{
         mytext,
-        othertext,
         setAppError,
         apperror,
         setAppNotification,
@@ -143,6 +172,9 @@ const Dashboard = (props) => {
         setUserDetails,
         payment,
         setPayment,
+        setRequestRecipients,
+        shouldrequestrecipients,
+        orgdetails,
       }}
     >
       <RecipientModal />
@@ -186,7 +218,7 @@ const Dashboard = (props) => {
         <div className=" rounded-2xl w-72  ml-4  bg-white fixed h-full">
           <div className="relative top-2 mb-2 h-full  pt-8 rounded border">
             <div className="text-5xl pb-5 font-semibold text-center">MTOG</div>
-            <div className="grid grid-rows-4 text-center">
+            <div className="flex flex-col gap-2 text-center">
               <div>
                 <NavLink
                   to={`${url}/home`}
@@ -224,6 +256,15 @@ const Dashboard = (props) => {
                   Deposit
                 </NavLink>
               </div>
+              <div>
+                <NavLink
+                  to={`${url}/transfer`}
+                  activeClassName={styles.activelink}
+                  className={styles.link}
+                >
+                  Transfer
+                </NavLink>
+              </div>
             </div>
             <div className=" absolute bottom-6  w-full  flex justify-center">
               <button
@@ -241,14 +282,14 @@ const Dashboard = (props) => {
           </div>
         </div>
 
-        <div className=" ml-80  flex flex-col pr-5 relative h-full">
-          <div className=" shadow sticky top-3 z-10 mb-10 rounded-2xl flex p-3 justify-end bg-white">
+        <div className=" ml-80  flex flex-col pr-5 relative h-full gap-10">
+          <div className=" shadow sticky top-3 z-10  rounded-2xl flex p-3 justify-end bg-white">
             <div className="pr-4 self-center ">
-              <span className="font-bold">Balance: </span> <span>10000 </span>
+              <span className="font-bold">Balance: </span>{" "}
+              <span>{orgdetails?.balance?.toLocaleString()} </span>
               MTOG
             </div>
           </div>
-          <br />
           <div className=" bottom-4 relative rounded-2xl border bg-white w-full ">
             <Switch>
               {myroutes.map((route, index) => (
@@ -270,4 +311,4 @@ const Dashboard = (props) => {
   );
 };
 
-export default Dashboard;
+// export default Dashboard;

@@ -19,7 +19,9 @@ const Deposit = () => {
         );
         // set the products to state
         setProducts(result.data);
-      } catch (error) {}
+      } catch (error) {
+        console.log(error.response);
+      }
     };
 
     fetchdata();
@@ -33,9 +35,12 @@ const Deposit = () => {
     <>
       <section className="h-screen">
         <article className="h-screen flex flex-wrap justify-around  w-full pt-8  ">
-          {Object.keys(products).map((productname) => {
+          {Object.keys(products).map((productname, index) => {
             return (
-              <div className="border border-gray-300 w-64 h-64 rounded flex flex-col mb-4">
+              <div
+                className="border border-gray-300 w-64 h-64 rounded flex flex-col mb-4"
+                key={index}
+              >
                 <div className=" text-6xl text-center bg-yellow-300">MTOG</div>
                 <div className="h-32 relative p-4 flex-grow">
                   <div>

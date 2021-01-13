@@ -46,3 +46,33 @@ export const validateidnumber = async (value) => {
     return false;
   }
 };
+
+export const requestorgdata = async (success, failure) => {
+  let orgdetails;
+  try {
+    orgdetails = await axios.post(
+      `${process.env.REACT_APP_SERVER}/orgdetails`,
+      {},
+      {
+        withCredentials: true,
+      }
+    );
+    success(orgdetails?.data);
+  } catch (error) {
+    failure(error.response?.data);
+  }
+  // console.log(orgdetails);
+};
+export const requestrecipientdata = async (success, failure) => {
+  let requestedrecipients;
+  try {
+    requestedrecipients = await axios.post(
+      `${process.env.REACT_APP_SERVER}/selectrecipientsfororg`,
+      {},
+      { withCredentials: true }
+    );
+    success(requestedrecipients?.data);
+  } catch (error) {
+    failure(error.response?.data);
+  }
+};

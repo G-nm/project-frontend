@@ -40,9 +40,9 @@ export const Fileuploadcomponent = () => {
         setAppError({
           ...apperror,
           color: "bg-red-500",
-          errormessage: `${error.response.data.error}`,
+          errormessage: `${error.response.data}`,
         });
-        console.log(error.response.data.error);
+        console.log(error.response.data);
       }
     },
     [apperror, appnotification, setAppError, setAppNotification]

@@ -3,10 +3,10 @@ import { useForm } from "react-hook-form";
 import axios from "axios";
 import parsePhoneNumber from "libphonenumber-js";
 import { Appcontext } from "../AppContext";
-import { validateidnumber, validatemobilenumber } from "./commonlogic";
+import { validateidnumber, validatemobilenumber } from "../commonlogic";
 
 export const USerDetailsForm = () => {
-  const { register, handleSubmit, errors, reset } = useForm();
+  const { register, handleSubmit, errors, reset, clearErrors } = useForm();
 
   const { setAppNotification, appnotification, userdetails } = useContext(
     Appcontext
@@ -19,7 +19,13 @@ export const USerDetailsForm = () => {
     mobilenumber,
     balance,
     uuid,
+    showuserdetails,
   } = userdetails;
+
+  if (Object.keys(errors).length) {
+    console.log(Object.keys(errors));
+    !showuserdetails && clearErrors();
+  }
 
   const submitform = async (data) => {
     const internationalnumber = parsePhoneNumber(data.mobilenumber, "KE")

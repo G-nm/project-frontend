@@ -3,12 +3,17 @@ import { useForm } from "react-hook-form";
 import axios from "axios";
 import parsePhoneNumber from "libphonenumber-js";
 import { Appcontext } from "../AppContext";
-import { validateidnumber, validatemobilenumber } from "./commonlogic";
+import { validateidnumber, validatemobilenumber } from "../commonlogic";
 
 export const Recipientsform = () => {
   const { register, handleSubmit, errors, reset } = useForm();
 
-  const { setAppNotification, appnotification } = useContext(Appcontext);
+  const {
+    setAppNotification,
+    appnotification,
+    setRequestRecipients,
+    shouldrequestrecipients,
+  } = useContext(Appcontext);
 
   const submitform = async (data) => {
     const internationalnumber = parsePhoneNumber(data.mobilenumber, "KE")
@@ -28,6 +33,7 @@ export const Recipientsform = () => {
           ...appnotification,
           message: "User Submitted",
         });
+        setRequestRecipients(!shouldrequestrecipients);
       }
     } catch (error) {
       console.log(error);

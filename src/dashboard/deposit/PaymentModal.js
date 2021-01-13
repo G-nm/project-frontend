@@ -21,8 +21,8 @@ export const PaymentModal = () => {
   } = useContext(Appcontext);
 
   const closemodal = () => {
-    const cardElement = elements.getElement(CardElement);
-    cardElement.clear();
+    const cardElement = elements?.getElement(CardElement);
+    cardElement?.clear();
     reset();
     setPayment({
       paymentname: "",
@@ -83,7 +83,7 @@ export const PaymentModal = () => {
           showpayment: false,
         });
         setAppNotification({ message: "Payment Successfull" });
-        
+
         // event.reset();
       }
     }

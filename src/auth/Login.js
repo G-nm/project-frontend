@@ -17,7 +17,7 @@ const Login = ({ routerprops, ...rest }) => {
 
   const onSubmitHandler = async (e) => {
     e.preventDefault();
-      // add user role to cb parameter if role is merchant push to merchant dash if org push to org dash
+    // add user role to cb parameter if role is merchant push to merchant dash if org push to org dash
     await auth.login(userData, (error) => {
       if (error) {
         setErrorAlert(error);
@@ -48,13 +48,13 @@ const Login = ({ routerprops, ...rest }) => {
           <div>
             <label htmlFor="password">Password</label>
             <div className="flex border rounded">
-              <span>
+              <span className="flex-grow ">
                 <input
                   type={eye ? "text" : "password"}
                   id="pass"
                   name="pass"
                   value={userData.pass}
-                  className="w-full h-9 pl-2 rounded outline-none"
+                  className="w-full h-9 pl-2 rounded outline-none "
                   onChange={onchangeHandler}
                   required
                 />

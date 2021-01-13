@@ -64,9 +64,12 @@ const Signup = () => {
     e.preventDefault();
     if (role) {
       try {
-        let result = await axios.post("http://localhost:3636/signuporg", {
-          ...organisation,
-        });
+        let result = await axios.post(
+          `${process.env.REACT_APP_SERVER}/signuporg`,
+          {
+            ...organisation,
+          }
+        );
 
         if (result.status === 200) {
           setOrganisation({
@@ -85,9 +88,12 @@ const Signup = () => {
       }
     } else {
       try {
-        let result = await axios.post("http://localhost:3636/signupmerchant", {
-          ...merchant,
-        });
+        let result = await axios.post(
+          `${process.env.REACT_APP_SERVER}/signupmerchant`,
+          {
+            ...merchant,
+          }
+        );
 
         if (result.status === 200) {
           setMerchant({
@@ -214,7 +220,7 @@ const Signup = () => {
           <div>
             <label htmlFor="password">Password</label>
             <div className="flex border rounded">
-              <span>
+              <span className="flex-grow">
                 <input
                   type={eye ? "text" : "password"}
                   id="pass"
