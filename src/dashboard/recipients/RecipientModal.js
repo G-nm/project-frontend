@@ -26,19 +26,16 @@ export const RecipientModal = (props) => {
         <div
           className="text-3xl relative top-2 cursor-pointer "
           onClick={() => {
-            setUserDetails({ ...userdetails, showuserdetails: false });
-            setTimeout(() => {
-              setUserDetails({
-                ...userdetails,
-                showuserdetails: false,
-                firstname: "",
-                lastname: "",
-                idnumber: "",
-                mobilenumber: "",
-                balance: "",
-                uuid: "",
-              });
-            }, 1000);
+            setUserDetails({
+              ...userdetails,
+              showuserdetails: false,
+              firstname: "",
+              lastname: "",
+              idnumber: "",
+              mobilenumber: "",
+              balance: "",
+              uuid: "",
+            });
           }}
         >
           <AiOutlineCloseCircle />

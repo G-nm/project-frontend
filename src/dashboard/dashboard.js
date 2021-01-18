@@ -83,6 +83,7 @@ export const Dashboard = (props) => {
   const [recipients, setRecipients] = useState([]);
   const [shouldrequestrecipients, setRequestRecipients] = useState(true);
   const [orgdetails, setOrgDetails] = useState({});
+  const [shouldrequestorgdetails, setRequestOrgDetails] = useState(true);
 
   useEffect(() => {
     let requestrecipients = async (success, failure) => {
@@ -102,6 +103,7 @@ export const Dashboard = (props) => {
       });
     };
 
+    // noinspection JSIgnoredPromiseFromCall
     requestrecipients(ifsuccess, iffailure);
   }, [shouldrequestrecipients]);
 
@@ -156,7 +158,7 @@ export const Dashboard = (props) => {
       });
     };
     data(ifsuccess, iffailure);
-  }, []);
+  }, [shouldrequestorgdetails]);
 
   let mytext = "wowowowo";
   return (
@@ -175,6 +177,8 @@ export const Dashboard = (props) => {
         setRequestRecipients,
         shouldrequestrecipients,
         orgdetails,
+        shouldrequestorgdetails,
+        setRequestOrgDetails,
       }}
     >
       <RecipientModal />
@@ -189,7 +193,7 @@ export const Dashboard = (props) => {
         }`}
       >
         <div
-          className="absolute z-20 w-full flex justify-center transform-gpu transition-all duration-500 -translate-y-full"
+          className="absolute z-30 w-full flex justify-center transform-gpu transition-all duration-500 -translate-y-full"
           ref={notificationbar}
         >
           <div
@@ -206,7 +210,7 @@ export const Dashboard = (props) => {
           </div>
         </div>
         <div
-          className="z-20 absolute bottom-32 p-4 -translate-x-full bg-green-300 rounded-lg w-80 h-14 flex items-center transform-gpu transition-all duration-700"
+          className="z-30 absolute bottom-32 p-4 -translate-x-full bg-green-300 rounded-lg w-80 h-14 flex items-center transform-gpu transition-all duration-700"
           ref={successnotification}
         >
           <span className="pr-5 flex-grow">{appnotification.message}</span>

@@ -9,18 +9,20 @@ import { Appcontext } from "../AppContext";
 // request with an amount is sent to the server at server amount is devided according to the number of recipients
 
 export const Transfer = () => {
-  const { errors, register, reset, handleSubmit, formState } = useForm();
+  const { errors, register, reset, handleSubmit } = useForm();
   const {
     recipients,
     orgdetails,
     apperror,
     setAppError,
-    appnotification,
+    shouldrequestrecipients,
+    setRequestRecipients,
+    shouldrequestorgdetails,
+    setRequestOrgDetails,
     setAppNotification,
   } = useContext(Appcontext);
   const [transfervalue, setTransferValue] = useState(0);
   const [nextbalance, setNextBalance] = useState(0);
-  let isdisabled = false;
 
   const submitdata = async (data) => {
     let { totalamount } = data;
@@ -39,8 +41,10 @@ export const Transfer = () => {
       );
       console.log(result);
       if (result.status) {
-        setAppNotification({ message: "Success" });
+        setAppNotification({ message: "Transfer successfull" });
         reset();
+        setRequestRecipients(!shouldrequestrecipients);
+        setRequestOrgDetails(!shouldrequestorgdetails);
       }
     } catch (error) {
       console.log(error);
@@ -50,15 +54,16 @@ export const Transfer = () => {
       });
     }
   };
+  console.log(orgdetails.balance / recipients.length);
 
   useEffect(() => {
     setNextBalance(orgdetails?.balance - transfervalue * recipients?.length);
   }, [orgdetails?.balance, transfervalue, recipients?.length]);
 
   // let nextbalance = orgdetails?.balance - transfervalue * recipients?.length;
-  if (nextbalance < 0 || nextbalance > orgdetails?.balance) {
-    isdisabled = true;
-  }
+  // if (nextbalance < 0 || nextbalance > orgdetails?.balance) {
+  //   isdisabled = true;
+  // }
 
   return (
     <>
@@ -79,7 +84,12 @@ export const Transfer = () => {
             onChange={(e) => setTransferValue(e.target.value)}
             ref={register({
               required: { value: true, message: "Amount is required" },
-              // min: { value: 10, message: "Token Value is Too small" },
+              min: { value: 1, message: "Token Value is Too small" },
+              max: {
+                value: orgdetails.balance / recipients.length,
+
+                message: "Token Value is Too  high",
+              },
             })}
             autoFocus
             disabled={!recipients?.length && true}
@@ -90,6 +100,9 @@ export const Transfer = () => {
               <div>{errors?.amount?.message}</div>
             )}
             {errors?.amount?.type === "min" && (
+              <div>{errors?.amount?.message}</div>
+            )}
+            {errors?.amount?.type === "max" && (
               <div>{errors?.amount?.message}</div>
             )}
             {!recipients?.length && <div>No Recipients found</div>}
@@ -135,9 +148,7 @@ export const Transfer = () => {
           <input
             type="number"
             placeholder="Next Balance"
-            className={`block w-full border  border-gray-300  pl-2 py-1 rounded focus:outline-none focus:border-green-300 ${
-              isdisabled && "border-red-600"
-            }`}
+            className={`block w-full border  border-gray-300  pl-2 py-1 rounded focus:outline-none focus:border-green-300 `}
             id="balanceafters"
             name="balanceafterdeduction"
             value={nextbalance || 0}
@@ -154,7 +165,7 @@ export const Transfer = () => {
           <button
             type="submit"
             className={` ${
-              isdisabled || !recipients?.length
+              !recipients?.length
                 ? "bg-red-400 text-black w-full p-2 transform-gpu transition-all duration-1000 rounded-md"
                 : " bg-green-500 text-white w-full p-2 rounded-md hover:bg-green-400 transform-gpu transition-all duration-1000"
             }`}

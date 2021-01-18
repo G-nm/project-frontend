@@ -8,7 +8,7 @@ import { validateidnumber, validatemobilenumber } from "../commonlogic";
 export const USerDetailsForm = () => {
   const { register, handleSubmit, errors, reset, clearErrors } = useForm();
 
-  const { setAppNotification, appnotification, userdetails } = useContext(
+  const { setAppNotification, appnotification, userdetails,apperror,setAppError,setUserDetails } = useContext(
     Appcontext
   );
 
@@ -30,11 +30,12 @@ export const USerDetailsForm = () => {
   const submitform = async (data) => {
     const internationalnumber = parsePhoneNumber(data.mobilenumber, "KE")
       .number;
-    console.log([{ ...data, mobilenumber: internationalnumber }]);
+    data = {...data,mobilenumber: internationalnumber,uuid }
+
     try {
       let response = await axios.post(
-        `${process.env.REACT_APP_SERVER}/updaterecipients`,
-        [data],
+        `${process.env.REACT_APP_SERVER}/updaterecipient`,
+        data,
         {
           withCredentials: true,
         }
@@ -43,11 +44,13 @@ export const USerDetailsForm = () => {
       if (response.status === 200) {
         setAppNotification({
           ...appnotification,
-          message: "User Submitted",
+          message: response.data,
         });
+        setUserDetails({...userdetails,showuserdetails:false})
       }
     } catch (error) {
-      console.log(error);
+      setAppError({...apperror,errormessage:"Server cannot be reached"})
+      console.log(error.response);
     }
 
     reset();
@@ -187,6 +190,7 @@ export const USerDetailsForm = () => {
           <button
             type="submit"
             className=" w-3/4 border h-full rounded-lg text-lg bg-yellow-400 hover:bg-yellow-300 focus:outline-none"
+
           >
             Update Recipient
           </button>
