@@ -1,9 +1,13 @@
-import React, { useContext } from "react";
+import React from "react";
 import { CardElement, useElements, useStripe } from "@stripe/react-stripe-js";
 import axios from "axios";
-import { Appcontext } from "../AppContext";
+
 import { AiOutlineCloseCircle } from "react-icons/ai";
 import { useForm } from "react-hook-form";
+import { useDispatch, useSelector } from "react-redux";
+import { clearselectedproduct } from "../../features/products/productsSLice";
+import { setNotification } from "../../features/notifications/notificationSlice";
+import { setError } from "../../features/errors/errorSlice";
 
 // to do now add a close button to modal which empties all fields
 // set a state on click in deposit page
@@ -12,23 +16,14 @@ export const PaymentModal = () => {
   const { register, handleSubmit, reset, errors } = useForm();
   const stripe = useStripe();
   const elements = useElements();
-  const {
-    payment,
-    setPayment,
-    setAppNotification,
-    setAppError,
-    apperror,
-  } = useContext(Appcontext);
 
+  const { selectedproduct } = useSelector((state) => state.products);
+  const dispatch = useDispatch();
   const closemodal = () => {
     const cardElement = elements?.getElement(CardElement);
     cardElement?.clear();
     reset();
-    setPayment({
-      paymentname: "",
-      showpayment: false,
-      price: "",
-    });
+    dispatch(clearselectedproduct());
   };
 
   const submithandle = async (data) => {
@@ -43,7 +38,7 @@ export const PaymentModal = () => {
       let { data } = await axios.post(
         `${process.env.REACT_APP_SERVER}/secret`,
         {
-          productname: payment.paymentname,
+          productname: selectedproduct.name,
         },
         { withCredentials: true }
       );
@@ -57,7 +52,7 @@ export const PaymentModal = () => {
     } catch (error) {
       console.log("Error", error);
     }
-    console.log(clientSecret);
+    // console.log(clientSecret);
     const result = await stripe.confirmCardPayment(clientSecret, {
       payment_method: {
         card: cardElement,
@@ -69,22 +64,13 @@ export const PaymentModal = () => {
     });
     if (result.error) {
       console.log(result.error.message);
-      setAppError({
-        ...apperror,
-        errormessage: result.error.message,
-      });
+      dispatch(setError(result.error.message));
     } else {
       if (result.paymentIntent.status === "succeeded") {
-        console.log("success");
-
+        // console.log("success");
         cardElement.clear();
-        setPayment({
-          paymentname: "",
-          showpayment: false,
-        });
-        setAppNotification({ message: "Payment Successfull" });
-
-        // event.reset();
+        dispatch(clearselectedproduct());
+        dispatch(setNotification({ message: "Payment Successfull" }));
       }
     }
   };
@@ -93,7 +79,7 @@ export const PaymentModal = () => {
     <>
       <div
         className={`absolute z-20 h-screen bg-green-100 w-full bg-opacity-60 flex justify-center items-center overflow-hidden transform-gpu transition-all duration-1000 ${
-          !payment.showpayment && "-translate-y-full"
+          !Object.keys(selectedproduct).length && "-translate-y-full"
         } `}
       >
         <div className="w-1/4 h-4/6 bg-white p-4 relative">
@@ -153,7 +139,7 @@ export const PaymentModal = () => {
                 type="submit"
                 className="w-full bg-green-500 mt-4 p-2 rounded-lg text-white relative bottom-0"
               >
-                Pay {payment.price?.toLocaleString()} KShs
+                Pay {selectedproduct.price?.toLocaleString()} KShs
               </button>
             </div>
           </form>

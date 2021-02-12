@@ -1,7 +1,18 @@
-import React, { useContext, useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useForm } from "react-hook-form";
-import { Appcontext } from "../AppContext";
+
+import {
+  getAsyncOrgDetails,
+  requestdetails,
+} from "../../features/organisations/orgSlice";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  requestrecipients,
+  selectallrecipients,
+} from "../../features/recipients/recipientsSlice";
+import { setError } from "../../features/errors/errorSlice";
+import { setNotification } from "../../features/notifications/notificationSlice";
 
 //Reason - The user can set an amount to send to all their recipients
 // Functions calculate amount of money left before transfering on transfer click
@@ -10,28 +21,30 @@ import { Appcontext } from "../AppContext";
 
 export const Transfer = () => {
   const { errors, register, reset, handleSubmit } = useForm();
-  const {
-    recipients,
-    orgdetails,
-    apperror,
-    setAppError,
-    shouldrequestrecipients,
-    setRequestRecipients,
-    shouldrequestorgdetails,
-    setRequestOrgDetails,
-    setAppNotification,
-  } = useContext(Appcontext);
+
   const [transfervalue, setTransferValue] = useState(0);
   const [nextbalance, setNextBalance] = useState(0);
+  const { balance } = useSelector(requestdetails);
+  const recipients = useSelector(selectallrecipients);
+  const dispatch = useDispatch();
+  // if (recipients.length === 0) {
+  //   dispatch(requestrecipients());
+
+  // }
+  useEffect(() => {
+    dispatch(requestrecipients());
+    dispatch(getAsyncOrgDetails());
+  }, [dispatch]);
 
   const submitdata = async (data) => {
     let { totalamount } = data;
     totalamount = totalamount.trim().split(" ");
     totalamount = parseInt(totalamount[0]);
-    console.log(totalamount);
+    // console.log(totalamount);
 
     // send request
     try {
+      dispatch(setNotification({ message: "Sending.....", status: "info" }));
       let result = await axios.post(
         `${process.env.REACT_APP_SERVER}/sendtoallrecipients`,
         {
@@ -39,31 +52,25 @@ export const Transfer = () => {
         },
         { withCredentials: true }
       );
-      console.log(result);
-      if (result.status) {
-        setAppNotification({ message: "Transfer successfull" });
+      // console.log(result);
+      if (result.status === 200) {
+        dispatch(setNotification({ message: "Transfer successfull" }));
+
+        dispatch(requestrecipients());
+        dispatch(getAsyncOrgDetails());
+        setTransferValue(0);
+
         reset();
-        setRequestRecipients(!shouldrequestrecipients);
-        setRequestOrgDetails(!shouldrequestorgdetails);
       }
     } catch (error) {
       console.log(error);
-      setAppError({
-        ...apperror,
-        errormessage: error.response.data,
-      });
+      dispatch(setError(error.response.data));
     }
   };
-  console.log(orgdetails.balance / recipients.length);
 
   useEffect(() => {
-    setNextBalance(orgdetails?.balance - transfervalue * recipients?.length);
-  }, [orgdetails?.balance, transfervalue, recipients?.length]);
-
-  // let nextbalance = orgdetails?.balance - transfervalue * recipients?.length;
-  // if (nextbalance < 0 || nextbalance > orgdetails?.balance) {
-  //   isdisabled = true;
-  // }
+    setNextBalance(balance - transfervalue * recipients?.length);
+  }, [balance, transfervalue, recipients?.length]);
 
   return (
     <>
@@ -86,7 +93,7 @@ export const Transfer = () => {
               required: { value: true, message: "Amount is required" },
               min: { value: 1, message: "Token Value is Too small" },
               max: {
-                value: orgdetails.balance / recipients.length,
+                value: balance / recipients.length,
 
                 message: "Token Value is Too  high",
               },
@@ -139,7 +146,7 @@ export const Transfer = () => {
             className="block w-full border  border-gray-300  pl-2 py-1 rounded focus:outline-none focus:border-green-300"
             id="currentbalance"
             name="currentbalance"
-            value={orgdetails?.balance || ""}
+            value={balance || ""}
             disabled
           />
         </div>
@@ -155,7 +162,7 @@ export const Transfer = () => {
             disabled
           />
           <div className="text-center text-red-500">
-            {orgdetails?.balance - transfervalue * recipients?.length < 0 && (
+            {balance - transfervalue * recipients?.length < 0 && (
               <div>Insufficient Tokens</div>
             )}
           </div>

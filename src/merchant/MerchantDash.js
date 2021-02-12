@@ -1,94 +1,55 @@
 import React from "react";
+import { BiLogOutCircle } from "react-icons/bi";
+import { useSelector } from "react-redux";
 import {
-  Switch,
+  NavLink,
   Redirect,
   Route,
+  Switch,
   useRouteMatch,
-  NavLink,
 } from "react-router-dom";
-import { Elements } from "@stripe/react-stripe-js";
-import { loadStripe } from "@stripe/stripe-js";
-import { BiLogOutCircle } from "react-icons/bi";
-
-import { RecipientModal } from "./recipients/RecipientModal";
-// import auth from "../auth/authservice";
-
-import { Home } from "./home";
-import { Recipient } from "./recipients";
-import { Merchant } from "./merchants";
-import { PaymentModal } from "./deposit/PaymentModal";
-import Deposit from "./deposit";
-
-import { Transfer } from "./transfer";
-
-import { TopBar } from "./TopBar";
-import { Notification } from "./Notification";
-import { useSelector } from "react-redux";
-
-import { ProtectedOrgRoute } from "../auth/ProtectedOrgRoute";
-
+import { ProtectedMerchantRoute } from "../auth/ProtectedMerchantRoute";
 import { useAuth } from "../auth/ProvideAuth";
-import ErrorComponent from "./ErrorComponent";
+import ErrorComponent from "../dashboard/ErrorComponent";
+import { Notification } from "../dashboard/Notification";
+import { History } from "./History";
+import { Home } from "./Home";
+import { MerchantTopBar } from "./MerchantTopBar";
+import { Redeem } from "./Redeem";
+import { Transactions } from "./Transactions/Transactions";
 
-require("dotenv").config();
-const stripPromise = loadStripe(
-  "pk_test_51I3gNIDsnRyoDmtJCrLBhlJX0PFNaFXNz8DHG90sOEl4Vv44lumjcQ9KDY6qdjVuwufFbUoc6J1dcpytArfRnM0k00IeDw03Rb"
-);
-
-const myroutes = [
-  {
-    path: "/dash/home",
-    exact: true,
-    main: () => <Home />,
-  },
-  {
-    path: "/dash/recipients",
-    exact: true,
-    main: () => <Recipient />,
-  },
-  {
-    path: "/dash/merchants",
-    exact: true,
-    main: () => <Merchant />,
-  },
-  {
-    path: "/dash/deposit",
-    exact: true,
-    main: () => <Deposit />,
-  },
-  {
-    path: "/dash/transfer",
-    exact: true,
-    main: () => <Transfer />,
-  },
-];
-
-// Add use effect and add state as dependency
-// In use effect change notification bar opacity
-
-export const Dashboard = (props) => {
-  const auth = useAuth();
-
+export const MerchantDash = (props) => {
+  const myroutes = [
+    // {
+    //   path: "/merchant/home",
+    //   exact: true,
+    //   main: () => <Home />,
+    // },
+    {
+      path: "/merchant/transactions",
+      exact: true,
+      main: () => <Transactions />,
+    },
+    {
+      path: "/merchant/history",
+      exact: true,
+      main: () => <History />,
+    },
+    {
+      path: "/merchant/redeem",
+      exact: true,
+      main: () => <Redeem />,
+    },
+  ];
+  const { notifications } = useSelector((state) => state.notifications);
   let { url } = useRouteMatch();
-
   const styles = {
     activelink: "block bg-yellow-300 rounded mx-4 ",
     link: "block mx-4 py-1",
   };
-
-  const { notifications } = useSelector((state) => state.notifications);
-  // console.log("The notifications array", notificationsarray);
-  const recipient = useSelector((state) => state.recipients.selectedrecipient);
-
+  const auth = useAuth();
   return (
     <React.Fragment>
-      
-      <RecipientModal />
-
-      <Elements stripe={stripPromise}>
-        <PaymentModal />
-      </Elements>
-
       <div className="h-screen bg-gray-100 overflow-auto">
         <ErrorComponent />
 
@@ -119,39 +80,30 @@ export const Dashboard = (props) => {
               </div>
               <div>
                 <NavLink
-                  to={`${url}/recipients`}
+                  to={`${url}/transactions`}
                   activeClassName={styles.activelink}
                   className={styles.link}
                 >
-                  Recipients
+                  Transactions
                 </NavLink>
               </div>
 
               <div>
                 <NavLink
-                  to={`${url}/merchants`}
+                  to={`${url}/history`}
                   activeClassName={styles.activelink}
                   className={styles.link}
                 >
-                  Merchants
+                  History
                 </NavLink>
               </div>
               <div>
                 <NavLink
-                  to={`${url}/deposit`}
+                  to={`${url}/redeem`}
                   activeClassName={styles.activelink}
                   className={styles.link}
                 >
-                  Deposit
-                </NavLink>
-              </div>
-              <div>
-                <NavLink
-                  to={`${url}/transfer`}
-                  activeClassName={styles.activelink}
-                  className={styles.link}
-                >
-                  Transfer
+                  Redeem
                 </NavLink>
               </div>
             </div>
@@ -172,11 +124,11 @@ export const Dashboard = (props) => {
         </div>
 
         <div className=" ml-80  flex flex-col pr-5 relative h-full gap-10">
-          <TopBar />
+          <MerchantTopBar />
           <div className=" bottom-4 relative rounded-2xl border bg-white w-full h-full">
             <Switch>
               {myroutes.map((route, index) => (
-                <ProtectedOrgRoute
+                <ProtectedMerchantRoute
                   key={index}
                   path={route.path}
                   exact={route.exact}
@@ -184,7 +136,7 @@ export const Dashboard = (props) => {
                 />
               ))}
               <Route path="*">
-                <Redirect to="/dash/home" />
+                <Redirect to="/merchant/home" />
               </Route>
             </Switch>
           </div>
@@ -193,5 +145,3 @@ export const Dashboard = (props) => {
     </React.Fragment>
   );
 };
-
-// export default Dashboard;

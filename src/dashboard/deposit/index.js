@@ -1,11 +1,16 @@
-import React, { useContext, useState, useEffect } from "react";
+import React, {  useEffect } from "react";
 import axios from "axios";
-import { Appcontext } from "../AppContext";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  selectproduct,
+  setproducts,
+} from "../../features/products/productsSLice";
 
 const Deposit = () => {
   // create a state for all products
-  const [products, setProducts] = useState({});
-  const { setPayment } = useContext(Appcontext);
+  // const [products, setProducts] = useState({});
+  const dispatch = useDispatch();
+
   // use useEffect to get the products list from the server if error show error to user
   useEffect(() => {
     const fetchdata = async () => {
@@ -18,14 +23,18 @@ const Deposit = () => {
           }
         );
         // set the products to state
-        setProducts(result.data);
+        // console.log(result.data);
+        dispatch(setproducts(result.data));
+        // setProducts(result.data);
       } catch (error) {
         console.log(error.response);
       }
     };
 
     fetchdata();
-  }, []);
+  }, [dispatch]);
+  const { products } = useSelector((state) => state.products);
+  // console.log(productslist);
 
   // since products is an object use object keys to get length -done
   // Use map to loop through every key as price is set -done
@@ -33,12 +42,12 @@ const Deposit = () => {
 
   return (
     <>
-      <section className="h-screen">
-        <article className="h-screen flex flex-wrap justify-around  w-full pt-8  ">
+      <section className="">
+        <article className=" h-full flex flex-wrap justify-evenly  w-full pt-8 gap-4">
           {Object.keys(products).map((productname, index) => {
             return (
               <div
-                className="border border-gray-300 w-64 h-64 rounded flex flex-col mb-4"
+                className="border border-gray-300 w-64 h-64 rounded flex flex-col mb-4 "
                 key={index}
               >
                 <div className=" text-6xl text-center bg-yellow-300">MTOG</div>
@@ -56,11 +65,12 @@ const Deposit = () => {
                     <button
                       className="bg-yellow-400 p-2 rounded-md  focus:outline-black"
                       onClick={() => {
-                        setPayment({
-                          showpayment: true,
-                          paymentname: productname,
-                          price: products[productname].price / 100,
-                        });
+                        dispatch(
+                          selectproduct({
+                            name: products[productname].name,
+                            price: products[productname].price / 100,
+                          })
+                        );
                       }}
                     >
                       Buy Tokens

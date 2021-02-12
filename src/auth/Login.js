@@ -1,13 +1,14 @@
 import React from "react";
 import { FiEye, FiEyeOff } from "react-icons/fi";
 
-import auth from "./authservice";
+import { useAuth } from "./ProvideAuth";
 import { ShowContext } from "./Showcontext";
 
 const Login = ({ routerprops, ...rest }) => {
   const [eye, SetEye] = React.useState(false);
-  const [userData, setUserData] = React.useState({ email: "", pass: "" });
+  const [userData, setUserData] = React.useState({ email: "", password: "" });
   const { setErrorAlert } = React.useContext(ShowContext);
+  const authfunc = useAuth();
 
   const onchangeHandler = (e) => {
     let name = e.target.name;
@@ -17,13 +18,20 @@ const Login = ({ routerprops, ...rest }) => {
 
   const onSubmitHandler = async (e) => {
     e.preventDefault();
-    // add user role to cb parameter if role is merchant push to merchant dash if org push to org dash
-    await auth.login(userData, (error) => {
+    // console.log("I am here");
+    await authfunc.signin(userData, (error, role) => {
       if (error) {
         setErrorAlert(error);
-        console.log(error);
-      } else {
-        routerprops.history.push("/dash/home");
+        console.log("The Error", error);
+        return;
+      }
+      // console.log(role);
+      if (role === "Organisation") {
+        // console.log(role);
+        routerprops.history.push("/dash/recipients");
+      } else if (role === "Merchant") {
+        console.log(role);
+        routerprops.history.push("/merchant/transactions");
       }
     });
   };
@@ -52,14 +60,14 @@ const Login = ({ routerprops, ...rest }) => {
                 <input
                   type={eye ? "text" : "password"}
                   id="pass"
-                  name="pass"
-                  value={userData.pass}
+                  name="password"
+                  value={userData.password}
                   className="w-full h-9 pl-2 rounded outline-none "
                   onChange={onchangeHandler}
                   required
                 />
               </span>
-              <span className="mt-2 text-xl">
+              <span className="mt-2 text-xl ">
                 {eye ? (
                   <FiEye
                     className="  cursor-pointer "

@@ -1,32 +1,27 @@
-import React, { useEffect, useState } from "react";
 import axios from "axios";
-
+import React, { useEffect, useState } from "react";
 import { FaAngleDoubleRight } from "react-icons/fa";
-
 import { useSelector } from "react-redux";
 
-export const TransfersinModal = () => {
-  const { userid } = useSelector((state) => state.recipients.selectedrecipient);
-
+export const History = () => {
   const [transactions, setTransactions] = useState([]);
 
   useEffect(() => {
     const getTransaction = async () => {
-      if (userid) {
-        let response = await axios.post(
-          `${process.env.REACT_APP_SERVER}/gettransactions`,
-          { recipientid: userid },
-          { withCredentials: true }
-        );
-        setTransactions(response.data);
-      }
+      let response = await axios.post(
+        `${process.env.REACT_APP_SERVER}/merchanttransactions`,
+        {},
+        { withCredentials: true }
+      );
+      setTransactions(response.data);
     };
     getTransaction();
-  }, [userid]);
+  }, []);
+  const { userid } = useSelector((state) => state.merchant);
 
   return (
     <>
-      <div className="text-center font-bold text-2xl ">Transfers</div>
+      <div className="text-center font-bold text-2xl ">Transfers History</div>
       <div className=" grid grid-cols-3 place-items-center">
         <div className="underline">From</div>
         <div className="underline">Amount</div>

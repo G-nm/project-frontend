@@ -1,10 +1,25 @@
-import React from "react";
+import React, { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { getAsyncOrgDetails } from "../../features/organisations/orgSlice";
 
 import { Fileuploadcomponent } from "./fileuploadcomponent";
 import { Recipientsform } from "./recipientsform";
 import { Recipientstable } from "./Recipientstable";
 
 export const Recipient = (props) => {
+  // const value = useAppContext();
+  // console.log(`Myvalue`, value);
+  const dispatch = useDispatch();
+
+  const { loggedin } = useSelector((state) => state.auth);
+  const status = useSelector((state) => state.organisation.status);
+
+  useEffect(() => {
+    if (status === "idle" && loggedin) {
+      dispatch(getAsyncOrgDetails());
+    }
+  }, [dispatch, status, loggedin]);
+
   return (
     <section className="  rounded-2xl  p-2 flex flex-col">
       <article className="w-full row-span-2 ">
@@ -13,15 +28,6 @@ export const Recipient = (props) => {
 
       <article className="pt-2 ">
         <Recipientsform />
-      </article>
-      <article>
-        <section className="float-right">
-          <input
-            type="text"
-            placeholder="Search"
-            className="border border-black  pl-2"
-          />
-        </section>
       </article>
       <article className="p-4 relative">
         <Recipientstable />

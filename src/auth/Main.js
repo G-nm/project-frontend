@@ -26,7 +26,7 @@ const Main = (props) => {
             <button
               className={
                 !show
-                  ? " w-1/2 text-center bg-gray-900 text-white float-left h-16 text-2xl outline-none focus:outline-none shadow-gl"
+                  ? " w-1/2 text-center bg-gray-900 text-white float-left h-16 text-2xl outline-none focus:outline-none shadow-lg"
                   : " w-1/2 text-center bg-white float-left h-16 text-2xl outline-none focus:outline-none "
               }
               onClick={(e) => {
@@ -48,7 +48,7 @@ const Main = (props) => {
               <span className="font-semibold">SIGN UP</span>
             </button>
           </div>
-          <div className="w-full px-12 pb-10  h-full">
+          <div className="w-full px-12 pb-10  h-full bg-white">
             <ShowContext.Provider value={{ setShow, setErrorAlert }}>
               {show && <Signup />}
               {!show && <Login routerprops={props} />}

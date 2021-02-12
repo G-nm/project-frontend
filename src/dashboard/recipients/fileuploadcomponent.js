@@ -1,9 +1,13 @@
 import { useDropzone } from "react-dropzone";
-import { useMemo, useCallback, useContext } from "react";
+import { useMemo, useCallback } from "react";
 import XLSX from "xlsx";
 import parsePhoneNumber from "libphonenumber-js";
-import { Appcontext } from "../AppContext";
+
 import axios from "axios";
+import { useDispatch } from "react-redux";
+import { setNotification } from "../../features/notifications/notificationSlice";
+import { setError } from "../../features/errors/errorSlice";
+import { addrecipient } from "../../features/recipients/recipientsSlice";
 
 const mystyles = {
   baseStyles:
@@ -13,12 +17,7 @@ const mystyles = {
 };
 
 export const Fileuploadcomponent = () => {
-  const {
-    setAppError,
-    apperror,
-    setAppNotification,
-    appnotification,
-  } = useContext(Appcontext);
+  const dispatch = useDispatch();
 
   const submittoserver = useCallback(
     async (data) => {
@@ -31,21 +30,15 @@ export const Fileuploadcomponent = () => {
           }
         );
         if (result.status === 200) {
-          setAppNotification({
-            ...appnotification,
-            message: "Success",
-          });
+          dispatch(setNotification({ message: "Users Added" }));
+          dispatch(addrecipient(result.data));
         }
       } catch (error) {
-        setAppError({
-          ...apperror,
-          color: "bg-red-500",
-          errormessage: `${error.response.data}`,
-        });
         console.log(error.response.data);
+        dispatch(setError(error.response.data));
       }
     },
-    [apperror, appnotification, setAppError, setAppNotification]
+    [dispatch]
   );
 
   const {
@@ -67,7 +60,7 @@ export const Fileuploadcomponent = () => {
           reader.onload = () => {
             const data = new Uint8Array(reader.result);
             const workbook = XLSX.read(data, { type: "array" });
-            console.log(workbook.SheetNames);
+            // console.log(workbook.SheetNames);
 
             const firstsheetname = workbook.SheetNames[0];
             let worksheet = workbook.Sheets[firstsheetname];
@@ -80,7 +73,7 @@ export const Fileuploadcomponent = () => {
                 throw new Error("Excel file is empty");
               } else if (Array.isArray(sheetdata) && sheetdata.length) {
                 //if not empty check if titles are present
-                console.log("Here is your data", sheetdata);
+                // console.log("Here is your data", sheetdata);
 
                 let arrayofid = [];
                 let arrayofmobilenumbers = [];
@@ -199,7 +192,7 @@ export const Fileuploadcomponent = () => {
                   },
                   []
                 );
-                console.log(`id numbers less than ten:`, idnumberslessthanten);
+                // console.log(`id numbers less than ten:`, idnumberslessthanten);
                 if (
                   numberslessthanten?.length ||
                   idnumberslessthanten?.length
@@ -248,19 +241,14 @@ export const Fileuploadcomponent = () => {
                 throw new Error("Error Occurred");
               }
             } catch (error) {
-              console.log(error.message);
-              setAppError({
-                ...apperror,
-                color: "bg-red-500",
-                textcolor: "text-white",
-                errormessage: error.message,
-              });
+              // console.log(error.message);
+              dispatch(setError(error.message));
             }
           };
           reader.readAsArrayBuffer(file);
         });
       },
-      [setAppError, apperror, submittoserver]
+      [submittoserver, dispatch]
     ),
     maxFiles: 1,
   });

@@ -1,24 +1,21 @@
-import React, { useContext } from "react";
+import React from "react";
 import { useForm } from "react-hook-form";
 import axios from "axios";
 import parsePhoneNumber from "libphonenumber-js";
-import { Appcontext } from "../AppContext";
+
 import { validateidnumber, validatemobilenumber } from "../commonlogic";
+import { useDispatch } from "react-redux";
+import { addrecipient } from "../../features/recipients/recipientsSlice";
+import { setNotification } from "../../features/notifications/notificationSlice";
 
 export const Recipientsform = () => {
   const { register, handleSubmit, errors, reset } = useForm();
-
-  const {
-    setAppNotification,
-    appnotification,
-    setRequestRecipients,
-    shouldrequestrecipients,
-  } = useContext(Appcontext);
+  const dispatch = useDispatch();
 
   const submitform = async (data) => {
     const internationalnumber = parsePhoneNumber(data.mobilenumber, "KE")
       .number;
-    console.log([{ ...data, mobilenumber: internationalnumber }]);
+    // console.log([{ ...data, mobilenumber: internationalnumber }]);
     try {
       let response = await axios.post(
         `${process.env.REACT_APP_SERVER}/addrecipients`,
@@ -28,19 +25,22 @@ export const Recipientsform = () => {
         }
       );
 
-      if (response.status === 200) {
-        setAppNotification({
-          ...appnotification,
-          message: "User Submitted",
-        });
-        setRequestRecipients(!shouldrequestrecipients);
+      if (response.status) {
+        // setRequestRecipients(!shouldrequestrecipients);
+        // dispatch notification
+        // dispatch add to array of recipients
+        dispatch(setNotification({ message: "User Added" }));
+        dispatch(addrecipient(response.data));
       }
     } catch (error) {
       console.log(error);
+      // dispatch error
     }
 
     reset();
   };
+
+  // dispatch(setNotification({ message: "User Added" }));
 
   return (
     <>

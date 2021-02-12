@@ -1,8 +1,10 @@
 import axios from "axios";
+// import { useEffect } from "react";
+// import { useDispatch } from "react-redux";
 
 export const validatemobilenumber = async (value) => {
   try {
-    const ismobilenumberused = await axios.post(
+    const response = await axios.post(
       `${process.env.REACT_APP_SERVER}/checkmobilenumber`,
       {
         mobilenumber: value,
@@ -14,7 +16,7 @@ export const validatemobilenumber = async (value) => {
         },
       }
     );
-    if (ismobilenumberused.data.ismobilenumberpresent === 0) {
+    if (response.status === 200) {
       return true;
     } else {
       return false;
@@ -25,7 +27,7 @@ export const validatemobilenumber = async (value) => {
 };
 export const validateidnumber = async (value) => {
   try {
-    let isidnumberused = await axios.post(
+    let response = await axios.post(
       `${process.env.REACT_APP_SERVER}/checkid`,
       {
         idnumber: value,
@@ -37,7 +39,31 @@ export const validateidnumber = async (value) => {
         },
       }
     );
-    if (isidnumberused.data.isidpresent === 0) {
+    if (response.status === 200) {
+      return true;
+    } else {
+      return false;
+    }
+  } catch (error) {
+    return false;
+  }
+};
+
+export const validateemail = async (value) => {
+  try {
+    let response = await axios.post(
+      `${process.env.REACT_APP_SERVER}/checkemail`,
+      {
+        email: value,
+      },
+      {
+        withCredentials: true,
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    if (response.status === 200) {
       return true;
     } else {
       return false;
