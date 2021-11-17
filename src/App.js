@@ -1,8 +1,8 @@
 import {
-  BrowserRouter as Router,
-  Route,
-  Switch,
-  Redirect,
+	BrowserRouter as Router,
+	Route,
+	Routes,
+	Navigate,
 } from "react-router-dom";
 // import { useContext, createContext, useState } from "react";
 import Main from "./auth/Main";
@@ -14,20 +14,33 @@ import { ProtectedMerchantRoute } from "./auth/ProtectedMerchantRoute";
 import { MerchantDash } from "./merchant/MerchantDash";
 
 function App() {
-  return (
-    <ProvideAuth>
-      <Router>
-        <Switch>
-          <Route exact strict path="/" component={Main} />
-          <ProtectedOrgRoute path="/dash" component={Dashboard} />
-          <ProtectedMerchantRoute path="/merchant" component={MerchantDash} />
-          <Route path="*">
-            <Redirect to="/" />
-          </Route>
-        </Switch>
-      </Router>
-    </ProvideAuth>
-  );
+	return (
+		<ProvideAuth>
+			<Router>
+				<Routes>
+					<Route path="/" element={<Main />} />
+					<Route
+						path="/dash"
+						element={
+							<ProtectedOrgRoute>
+								<Dashboard />
+							</ProtectedOrgRoute>
+						}
+					/>
+					<Route
+						path="/merchant"
+						element={
+							<ProtectedMerchantRoute>
+								<MerchantDash />
+							</ProtectedMerchantRoute>
+						}
+					/>
+
+					<Route path="*" element={<Navigate to="/" />}></Route>
+				</Routes>
+			</Router>
+		</ProvideAuth>
+	);
 }
 
 export default App;
