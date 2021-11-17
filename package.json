@@ -14,7 +14,7 @@
     "axios": "^0.24.0",
     "dotenv": "^10.0.0",
     "libphonenumber-js": "^1.9.42",
-    "postcss": "^7.0.35",
+    "postcss": "^7.0.36",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "react-dropzone": "^11.4.2",
