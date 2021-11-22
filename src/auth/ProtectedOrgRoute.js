@@ -1,23 +1,16 @@
 import React from "react";
 import { useSelector } from "react-redux";
-import { Redirect, Route } from "react-router-dom";
+import { Navigate, useNavigate, useLocation } from "react-router-dom";
 
-export const ProtectedOrgRoute = ({ component: Component, ...rest }) => {
-  // Check if user is logged in
-  // Check if user has org role
+export const ProtectedOrgRoute = ({ children }) => {
+	// Check if user is logged in
+	// Check if user has org role
+	let location = useLocation();
 
-  const { role, loggedin } = useSelector((state) => state.auth);
+	const { role, loggedin } = useSelector((state) => state.auth);
 
-  return (
-    <Route
-      {...rest}
-      render={(props) => {
-        return loggedin && role === "Organisation" ? (
-          <Component {...props} />
-        ) : (
-          <Redirect to={{ pathname: "/", state: { from: props.location } }} />
-        );
-      }}
-    />
-  );
+	if (!loggedin || role !== "Organisation") {
+		return <Navigate to={"/"} state={{ from: location }} />;
+	}
+	return children;
 };
