@@ -6,7 +6,7 @@ import {
 } from "react-router-dom";
 // import { useContext, createContext, useState } from "react";
 import Main from "./auth/Main";
-import { Dashboard } from "./dashboard/dashboard";
+import { Dashboard, ROUTES } from "./dashboard/dashboard";
 // import { ProtectedRoute } from "./auth/protected.route";
 import { ProvideAuth } from "./auth/ProvideAuth";
 import { ProtectedOrgRoute } from "./auth/ProtectedOrgRoute";
@@ -20,22 +20,29 @@ function App() {
 				<Routes>
 					<Route path="/" element={<Main />} />
 					<Route
-						path="/dash"
+						path="organisation"
 						element={
 							<ProtectedOrgRoute>
 								<Dashboard />
 							</ProtectedOrgRoute>
 						}
-					/>
+					>
+						{ROUTES.map((route, index) => (
+							<Route
+								path={route.path}
+								element={route.main()}
+								key={index}
+							/>
+						))}
+					</Route>
 					<Route
-						path="/merchant"
+						path="merchant"
 						element={
 							<ProtectedMerchantRoute>
 								<MerchantDash />
 							</ProtectedMerchantRoute>
 						}
 					/>
-
 					<Route path="*" element={<Navigate to="/" />}></Route>
 				</Routes>
 			</Router>
