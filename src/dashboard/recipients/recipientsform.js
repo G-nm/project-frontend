@@ -18,10 +18,10 @@ export const Recipientsform = () => {
 	const dispatch = useDispatch();
 
 	const submitform = async (data) => {
-		const internationalnumber = parsePhoneNumber(
-			data.mobilenumber,
-			"KE"
-		).number;
+		// const internationalnumber = parsePhoneNumber(
+		// 	data.mobilenumber,
+		// 	"KE"
+		// ).number;
 		// console.log([{ ...data, mobilenumber: internationalnumber }]);
 		try {
 			let response = await axios.post(

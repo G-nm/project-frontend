@@ -14,11 +14,11 @@ export const Recipient = (props) => {
 	const { loggedin } = useSelector((state) => state.auth);
 	const status = useSelector((state) => state.organisation.status);
 
-	// useEffect(() => {
-	// 	if (status === "idle" && loggedin) {
-	// 		dispatch(getAsyncOrgDetails());
-	// 	}
-	// }, [dispatch]);
+	useEffect(() => {
+		if (status === "idle" && loggedin) {
+			dispatch(getAsyncOrgDetails());
+		}
+	}, [dispatch, loggedin, status]);
 
 	return (
 		<section className="  rounded-2xl  p-2 flex flex-col">

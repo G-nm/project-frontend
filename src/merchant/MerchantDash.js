@@ -7,7 +7,7 @@ import { useAuth } from "../auth/ProvideAuth";
 import ErrorComponent from "../dashboard/ErrorComponent";
 import { Notification } from "../dashboard/Notification";
 import { History } from "./History";
-import { Home } from "./Home";
+// import { Home } from "./Home";
 import { MerchantTopBar } from "./MerchantTopBar";
 import { Redeem } from "./Redeem";
 import { Transactions } from "./Transactions/Transactions";
@@ -61,7 +61,9 @@ export const MerchantDash = (props) => {
 
 				<div className=" rounded-2xl w-72  ml-4  bg-white fixed h-full">
 					<div className="relative top-2 mb-2 h-full  pt-8 rounded">
-						<div className="text-5xl pb-5 font-semibold text-center">MTOG</div>
+						<div className="text-5xl pb-5 font-semibold text-center">
+							MTOG
+						</div>
 						<div className="flex flex-col gap-2 text-center">
 							<div>
 								{/* <NavLink

@@ -20,7 +20,6 @@ export const USerDetailsForm = () => {
 		register,
 		handleSubmit,
 		formState: { errors },
-		clearErrors,
 		reset,
 	} = useForm();
 	const recipient = useSelector((state) => state.recipients.selectedrecipient);

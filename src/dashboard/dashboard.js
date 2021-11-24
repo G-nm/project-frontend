@@ -1,20 +1,11 @@
 import React from "react";
-import {
-	Routes,
-	Navigate,
-	Route,
-	useMatch,
-	NavLink,
-	useNavigate,
-	Outlet,
-	useLocation,
-} from "react-router-dom";
+import { NavLink, useNavigate, Outlet, useLocation } from "react-router-dom";
 import { Elements } from "@stripe/react-stripe-js";
 import { loadStripe } from "@stripe/stripe-js";
 import { BiLogOutCircle } from "react-icons/bi";
 import { useSelector } from "react-redux";
 import { RecipientModal } from "./recipients/RecipientModal";
-import Home from "./home";
+
 import { Recipient } from "./recipients";
 import { Merchant } from "./merchants";
 import { PaymentModal } from "./deposit/PaymentModal";
@@ -22,7 +13,6 @@ import Deposit from "./deposit";
 import { Transfer } from "./transfer";
 import { TopBar } from "./TopBar";
 import { Notification } from "./Notification";
-import { ProtectedOrgRoute } from "../auth/ProtectedOrgRoute";
 import { useAuth } from "../auth/ProvideAuth";
 import ErrorComponent from "./ErrorComponent";
 
@@ -66,7 +56,7 @@ export const Dashboard = (props) => {
 
 	const { notifications } = useSelector((state) => state.notifications);
 	// console.log("The notifications array", notificationsarray);
-	const recipient = useSelector((state) => state.recipients.selectedrecipient);
+	// const recipient = useSelector((state) => state.recipients.selectedrecipient);
 
 	return (
 		<React.Fragment>
@@ -77,7 +67,7 @@ export const Dashboard = (props) => {
 			</Elements>
 
 			<div className="h-screen bg-gray-100 overflow-auto">
-				{/* <ErrorComponent /> */}
+				<ErrorComponent />
 
 				<section className=" w-1/4 h-full absolute flex flex-col-reverse pb-14  ">
 					{notifications.length > 0 &&
